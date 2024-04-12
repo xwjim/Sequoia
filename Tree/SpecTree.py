@@ -2,6 +2,7 @@ import torch
 from torch.nn.functional import softmax
 from .Tree import Tree
 import time
+from collections import defaultdict
 from Engine.Engine import GraphInferenceEngine, GraphInferenceEngineTG
 from utils import get_sampling_logits, ChildrenAccept, get_residual
 class SpecTree(Tree):
@@ -17,7 +18,7 @@ class SpecTree(Tree):
                  device :str = 'cpu',
                  max_target_seq = 256,
                  vocab_size = 32000,
-                 grow_map = None,
+                 tree_size = 128,
                  attn_mask = None, 
                  sequence = None, 
                  new_tokens_buffer = None, 
@@ -25,7 +26,7 @@ class SpecTree(Tree):
                  position_ids = None,
                  residual_graph = None,
                  sampling_callables = None,
-                 sample_gather_indices = None) -> None:
+                 draft_step = None) -> None:
         super().__init__(device=device, max_length=max_length)
         assert self.max_length == draft_model_engine.engine.max_length
         self.max_target_seq = max_target_seq
@@ -34,34 +35,22 @@ class SpecTree(Tree):
         self.temperature = temperature
         self.top_p = top_p
         self.residual_graph = residual_graph
-        self.grow_map = grow_map
         self.sampling_callables = sampling_callables
-        self.sample_gather_indices = sample_gather_indices
-        self.draft_step = len(self.grow_map["roots"])
-        self.grow_map_roots_gpu = []
-        for x in self.grow_map["roots"]:
-             self.grow_map_roots_gpu.append(torch.Tensor(x).to(self.device).long())
-        self.Successors = self.grow_map["Successors"]
-        tree_mask :torch.Tensor = self.grow_map["mask"].to(self.device)
-        tree_mask = (tree_mask == 0).type(self.dtype)
-        
-        tree_mask.masked_fill_(tree_mask > 0, torch.finfo(self.dtype).min)
+        self.draft_step = draft_step
+       
         self.initialize(attn_mask, sequence, new_tokens_buffer, parents_buffer, position_ids, None)
         self.set_prefix(prefix=prefix)
-        self.tree_size = self.grow_map["size"]
-        self.tree_mask = tree_mask
+        self.tree_size = tree_size
+        self.num_index = torch.arange((self.tree_size),dtype=torch.long,device=self.device)
 
-        self.full_attn_mask[self.max_length - self.tree_size + 1: self.max_length, self.max_length - self.tree_size + 1: self.max_length] = tree_mask[1:, 1:]
-
+        self.full_attn_mask[self.max_length - self.tree_size + 1: self.max_length, self.max_length - self.tree_size + 1: self.max_length] = torch.finfo(self.dtype).min
 
         total_nodes = len(prefix) + self.tree_size - 1
         self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes]
         self.ground_truth_len = len(prefix)
         self.r = torch.rand(len(position_ids), dtype=self.dtype).to(self.device)
         
-        self.position_ids[len(prefix) : len(prefix) + self.tree_size - 1] = (self.grow_map["depth"][1:].to(self.device) + len(prefix) - 1)
         self.storage_ids = torch.arange(self.max_length).to(self.device)
-        self.depth = self.grow_map["depth"][1:].to(self.device)
         
         self.draft_logits = torch.zeros((self.max_length, vocab_size), dtype=self.dtype).to(self.device)
         if draft_kv_len == 0:
@@ -83,7 +72,6 @@ class SpecTree(Tree):
         
         self.rand = torch.empty((self.tree_size, self.draft_logits.shape[1]), dtype=self.dtype).uniform_().to(self.device)
         self.seq_to_use = list(range(self.max_length))
-    
     @torch.inference_mode()
     def collective_grow_static(self, idx_list :list[int], n_branch_list :list[int], benchmark=False, grow_step = None):
         
@@ -91,7 +79,11 @@ class SpecTree(Tree):
             x1 = 0.0
             x2 = 0.0
         
-        
+        # def tree_search(draft_logits,tokens_set):
+        #      if draft_logits.shape[0] + tokens_set.shape[0] > 0:
+        #           pass
+        #      else:
+        #           pass
         
         
         total_branch = sum(n_branch_list)
@@ -101,7 +93,22 @@ class SpecTree(Tree):
                 t1 = time.time()
 
         new_tokens_set :torch.LongTensor = self.sampling_callables[grow_step](self.draft_logits[idx_list], self.rand[idx_list])
-        self.tokens[self.num_nodes: self.num_nodes + total_branch] = new_tokens_set[self.sample_gather_indices[grow_step]]
+        # n_branch_list_clone = tree_search(self.draft_logits[idx_list], new_tokens_set)
+        # for j,k in zip(n_branch_list_clone, n_branch_list):
+        #      assert j == k
+        max_num_samples = max(n_branch_list)
+        sample_gather_indices = torch.arange(sum(n_branch_list), device=new_tokens_set.device, dtype=torch.long)
+        cum_sum_cnt = 0
+        node_pre = len(n_branch_list)
+        for j, branch in enumerate(n_branch_list):
+            sample_gather_indices[cum_sum_cnt:cum_sum_cnt+branch] += j * max_num_samples - cum_sum_cnt
+            self.Successors.append([k+cum_sum_cnt+1+idx_list[-1].item() for k in range(branch)])
+            self.attn_mask[self.num_nodes+cum_sum_cnt:self.num_nodes+cum_sum_cnt+branch,:self.num_nodes-node_pre+j+1] = self.attn_mask[self.num_nodes-node_pre+j,:self.num_nodes-node_pre+j+1]
+            cum_sum_cnt += branch
+        for j in range(cum_sum_cnt):
+            self.attn_mask[self.num_nodes+j,self.num_nodes+j] = 0
+        
+        self.tokens[self.num_nodes: self.num_nodes + total_branch] = new_tokens_set[sample_gather_indices]
         if benchmark:
                     torch.cuda.synchronize()
                     t2 = time.time()
@@ -115,6 +122,8 @@ class SpecTree(Tree):
         end_pos = self.num_nodes
         attn_mask = self.attn_mask[self.num_nodes - total_branch: self.num_nodes]
         attn_mask = attn_mask[None, None, :, :]
+
+        self.position_ids[start_pos : end_pos] = self.position_ids[start_pos-1].item()+1
         
         draft_model_outputs = self.draft_model_engine.graph_inference(
             input_ids = self.tokens[self.draft_kv_len: self.num_nodes].unsqueeze(0),
@@ -242,17 +251,25 @@ class SpecTree(Tree):
              return self.tokens[:accept_length], accept_length, accept_length, terminal
     def verbose(self):
         super().verbose()
-    def construct_grow_map(self, benchmark = False):
+    def construct_grow_map(self, benchmark = False, branch_lists = None):
         if benchmark:
             sample_time = 0
             compute_time = 0
+        start_pos = 0
+        end_pos = 1
+        self.Successors = []
         for i in range(self.draft_step - 1):
                 if benchmark:
-                        _, t1, t2 = self.collective_grow_static(self.grow_map_roots_gpu[i], self.grow_map['branches'][i], benchmark=benchmark, grow_step=i)
+                        _, t1, t2 = self.collective_grow_static(self.num_index[start_pos:end_pos], branch_lists[i], benchmark=benchmark, grow_step=i)
                         sample_time += t1
                         compute_time += t2   
                 else:
-                        self.collective_grow_static(self.grow_map_roots_gpu[i], self.grow_map['branches'][i], grow_step=i)
+                        self.collective_grow_static(self.num_index[start_pos:end_pos], branch_lists[i], grow_step=i)
+                start_pos = end_pos
+                end_pos += sum(branch_lists[i])
+        for branch in branch_lists[self.draft_step - 1]:
+            self.Successors.append([k+end_pos for k in range(branch)])
+             
         if benchmark:
             return sample_time, compute_time
         else:
@@ -263,9 +280,10 @@ class SpecTree(Tree):
               return 
         self.position_ids[:len(accept_list)] =  self.position_ids[accept_list]
         self.position_ids[len(accept_list)] = len(accept_list) 
-        self.position_ids[len(valid_tokens) : len(valid_tokens) + self.tree_size - 1] = (self.depth + len(valid_tokens) - 1)
+        # self.position_ids[len(valid_tokens) : len(valid_tokens) + self.tree_size - 1] = (self.depth + len(valid_tokens) - 1)
         self.ground_truth_len = len(valid_tokens)
         self.num_nodes = len(valid_tokens)
+        # assert self.num_nodes == len(accept_list)+1
 
         total_nodes = len(valid_tokens) + self.tree_size - 1
         self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes]
