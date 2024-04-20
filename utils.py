@@ -15,7 +15,7 @@ def sampling_without_replacement(
 
         sampling_q = softmax(sampling_logits / temperature, dim=-1)
         position = (rand.log()/sampling_q).topk(k=num_samples).indices.flatten()
-        return position
+        return position, sampling_q
 
 def sampling_with_replacement(
         sampling_logits: torch.Tensor,   
@@ -25,7 +25,7 @@ def sampling_with_replacement(
         #sampling_q = softmax(sampling_logits / temperature, dim=-1)
         sampling_q = softmax(sampling_logits / temperature, dim=-1)    
         position = sampling_q.multinomial(num_samples=num_samples, replacement=False).flatten()
-        return position
+        return position, sampling_q
 def sampling_argmax(
         sampling_logits: torch.Tensor, 
         num_samples: int):
@@ -151,7 +151,7 @@ def cuda_graph_for_sampling_without_replacement(
     s.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(s):
         for _ in range(n_warmups):
-            static_position = sampling_without_replacement(
+            static_position, sampling_q = sampling_without_replacement(
                  static_sampling_logits,
                  static_rand,
                  num_samples,
@@ -162,7 +162,7 @@ def cuda_graph_for_sampling_without_replacement(
 
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, pool=mempool):
-        static_position = sampling_without_replacement(
+        static_position, sampling_q = sampling_without_replacement(
                  static_sampling_logits,
                  static_rand,
                  num_samples,
@@ -172,7 +172,7 @@ def cuda_graph_for_sampling_without_replacement(
         static_sampling_logits.copy_(draft_logits)
         static_rand.copy_(rand_vector)
         graph.replay()
-        return static_position.clone()
+        return static_position.clone(), sampling_q.clone()
     
     return run
 

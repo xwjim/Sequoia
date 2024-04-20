@@ -140,7 +140,7 @@ def simulation_greedy(target_model : GraphInferenceEngineTG, draft_model: GraphI
     return num_decoding_steps / num_large_model_steps
 
 
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf", use_fast=False)
+tokenizer = AutoTokenizer.from_pretrained(args.target, use_fast=False)
 tokenizer.pad_token = tokenizer.eos_token
 if args.dataset == 'openwebtext':
     tokenized_dataset_eval = load_from_disk("../dataset/openwebtext_eval").select(list(range(args.start, args.end)))
