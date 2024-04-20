@@ -68,17 +68,16 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
             spectree = SpecTree(prefix=input_ids.squeeze(0), device='cuda:0', temperature=T,
                                     top_p=top_p,
                                     draft_kv_len=draft_kv_len, target_kv_len=target_kv_len,
-                                    draft_model_engine=draft_model, target_model_engine=target_model, max_length=max_length, grow_map=grow_map,
+                                    draft_model_engine=draft_model, target_model_engine=target_model, max_length=max_length,
                                     attn_mask = attn_mask, sequence = sequence, new_tokens_buffer = new_tokens_buffer, 
                                     parents_buffer = parents_buffer, 
                                     position_ids = position_ids,
                                     residual_graph = residual_graph,
-                                    sampling_callables=sampling_callables,
-                                    sample_gather_indices = sample_gather_indices)
+                                    sampling_callables=sampling_callables)
             torch.cuda.synchronize()
             t1 = time.time()
             while input_ids.shape[1] < 256 and terminate == False:
-                spectree.construct_grow_map()
+                spectree.construct_grow_map( branch_lists = grow_map['branches'])
                 valid_tokens, draft_kv_len, target_kv_len, terminate = spectree.verify()
                 
                 num_decoding_steps += (valid_tokens.shape[0] - input_ids.shape[1])
@@ -220,7 +219,7 @@ def simulation_benchmark(target_model : GraphInferenceEngineTG, draft_model: Gra
 
 
 
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf", use_fast=False)
+tokenizer = AutoTokenizer.from_pretrained("/data5/xylu/Llama_2_7b_hf/", use_fast=False)
 tokenizer.pad_token = tokenizer.eos_token
 eval_list = list(range(200, 2000))
 import random

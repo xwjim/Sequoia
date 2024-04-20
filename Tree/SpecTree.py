@@ -36,7 +36,7 @@ class SpecTree(Tree):
         self.top_p = top_p
         self.residual_graph = residual_graph
         self.sampling_callables = sampling_callables
-        self.draft_step = draft_step
+        self.draft_step = len(sampling_callables)
        
         self.initialize(attn_mask, sequence, new_tokens_buffer, parents_buffer, position_ids, None)
         self.set_prefix(prefix=prefix)
