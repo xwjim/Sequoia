@@ -74,7 +74,7 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
                                     position_ids = position_ids,
                                     residual_graph = residual_graph,
                                     sampling_callables=sampling_callables,
-                                    draft_step = len(sampling_callables))
+                                    draft_step = len(grow_map["roots"]))
             torch.cuda.synchronize()
             t1 = time.time()
             while input_ids.shape[1] < 256 and terminate == False:
@@ -180,7 +180,8 @@ def simulation_benchmark(target_model : GraphInferenceEngineTG, draft_model: Gra
                                         position_ids = position_ids,
                                         residual_graph = residual_graph,
                                         sampling_callables=sampling_callables,
-                                        sample_gather_indices = sample_gather_indices)
+                                        sample_gather_indices = sample_gather_indices,
+                                        draft_step = len(grow_map["roots"]))
             while input_ids.shape[1] < 256 and terminate == False:
                 torch.cuda.synchronize()
                 t1 = time.time()

@@ -36,7 +36,7 @@ class SpecTree(Tree):
         self.top_p = top_p
         self.residual_graph = residual_graph
         self.sampling_callables = sampling_callables
-        self.draft_step = len(sampling_callables)
+        self.draft_step = draft_step
        
         self.initialize(attn_mask, sequence, new_tokens_buffer, parents_buffer, position_ids, None)
         self.set_prefix(prefix=prefix)
@@ -51,7 +51,6 @@ class SpecTree(Tree):
         self.r = torch.rand(len(position_ids), dtype=self.dtype).to(self.device)
         
         self.storage_ids = torch.arange(self.max_length).to(self.device)
-        self.max_samples = max_samples
         
         self.draft_logits = torch.zeros((self.max_length, vocab_size), dtype=self.dtype).to(self.device)
         self.draft_accept_probs = torch.zeros((self.max_length, 1), dtype=self.dtype).to(self.device)
