@@ -44,7 +44,7 @@ setup_seed(args.seed)
 
 def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInferenceEngine, dataloader: DataLoader, T=0.6, top_p=0.9,
             max_length=512, residual_graph=None, grow_map=None, sampling_callables = None,
-            sample_gather_indices = None):
+            branch_lists = None):
     num_eval_steps = len(dataloader)
     num_decoding_steps = 0
     num_large_model_steps = 0
@@ -68,17 +68,17 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
             spectree = SpecTree(prefix=input_ids.squeeze(0), device='cuda:0', temperature=T,
                                     top_p=top_p,
                                     draft_kv_len=draft_kv_len, target_kv_len=target_kv_len,
-                                    draft_model_engine=draft_model, target_model_engine=target_model, max_length=max_length, grow_map=grow_map,
+                                    draft_model_engine=draft_model, target_model_engine=target_model, max_length=max_length,  tree_size = grow_map["size"],
                                     attn_mask = attn_mask, sequence = sequence, new_tokens_buffer = new_tokens_buffer, 
                                     parents_buffer = parents_buffer, 
                                     position_ids = position_ids,
                                     residual_graph = residual_graph,
                                     sampling_callables=sampling_callables,
-                                    sample_gather_indices = sample_gather_indices)
+                                    draft_step = len(branch_lists))
             torch.cuda.synchronize()
             t1 = time.time()
             while input_ids.shape[1] < 256 and terminate == False:
-                spectree.construct_grow_map()
+                spectree.construct_grow_map(branch_lists=branch_lists)
                 valid_tokens, draft_kv_len, target_kv_len, terminate = spectree.verify()
                 
                 num_decoding_steps += (valid_tokens.shape[0] - input_ids.shape[1])
@@ -142,8 +142,7 @@ def simulation_baseline(target_model : GraphInferenceEngineTG, dataloader: DataL
     print("total time :{:.5f}s, latency :{:.5f}s, decoding step: {}".format(total_time, total_time / num_decoding_steps, num_decoding_steps))
     return num_decoding_steps
 def simulation_benchmark(target_model : GraphInferenceEngineTG, draft_model: GraphInferenceEngine, dataloader: DataLoader, T=0.6, top_p=0.9, 
-                max_length=512, residual_graph=None, grow_map=None, sampling_callables = None,
-                sample_gather_indices = None):
+                max_length=512, residual_graph=None, grow_map=None, sampling_callables = None):
     num_eval_steps = len(dataloader)
     num_decoding_steps = 0
     num_large_model_steps = 0
@@ -174,19 +173,18 @@ def simulation_benchmark(target_model : GraphInferenceEngineTG, draft_model: Gra
             spectree = SpecTree(prefix=input_ids.squeeze(0), device='cuda:0', temperature=T,
                                         top_p=top_p, 
                                         draft_kv_len=draft_kv_len, target_kv_len=target_kv_len,
-                                        draft_model_engine=draft_model, target_model_engine=target_model, max_length=max_length, grow_map=grow_map,
+                                        draft_model_engine=draft_model, target_model_engine=target_model, max_length=max_length, tree_size = grow_map["size"],
                                         attn_mask = attn_mask, sequence = sequence, new_tokens_buffer = new_tokens_buffer, 
                                         parents_buffer = parents_buffer, 
                                         position_ids = position_ids,
                                         residual_graph = residual_graph,
-                                        sampling_callables=sampling_callables,
-                                        sample_gather_indices = sample_gather_indices)
+                                        sampling_callables=sampling_callables)
             while input_ids.shape[1] < 256 and terminate == False:
                 torch.cuda.synchronize()
                 t1 = time.time()
                 torch.cuda.synchronize()
                 t2 = time.time()
-                a, b = spectree.construct_grow_map(benchmark=True)
+                a, b = spectree.construct_grow_map(benchmark=True, branch_lists=branch_lists)
                 torch.cuda.synchronize()
                 t3 = time.time()
                 valid_tokens, draft_kv_len, target_kv_len, x, y, z, terminate = spectree.verify(benchmark=True)
@@ -220,7 +218,7 @@ def simulation_benchmark(target_model : GraphInferenceEngineTG, draft_model: Gra
 
 
 
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf", use_fast=False)
+tokenizer = AutoTokenizer.from_pretrained(args.target, use_fast=False)
 tokenizer.pad_token = tokenizer.eos_token
 eval_list = list(range(200, 2000))
 import random
@@ -259,28 +257,25 @@ else:
     print(tree_size)
     idx_lists = grow_map["roots"]
     branch_lists = grow_map['branches']
-    draft_step = len(grow_map["roots"])
+    # branch_lists = [
+    #          [3],
+    #          [3,3,3],
+    #          [3,3,3,3,3,3,3,3,3],
+    #          [3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+    #          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    #     ]
+    draft_step = len(branch_lists)
     
     graph_capture_list = [sum(x) for x in branch_lists]
     graph_capture_list.append(1)
     draft_model.initialize_cuda_graph(graph_capture_list)
     sampling_callables = {}
-    sample_gather_indices = {}
     for i in range(draft_step - 1):
         idx_len = len(idx_lists[i])
         num_samples = max(branch_lists[i])
         sampling_callables[i] = cuda_graph_for_sampling_without_replacement(
             max_length=args.M, idx_len=idx_len, num_samples=num_samples,
             temperature=args.T, tree_size=tree_size) 
-    for i in range(draft_step - 1):
-        ith_gather_list = []
-        max_num_samples = max(branch_lists[i])
-        for j, branch in enumerate(branch_lists[i]):
-            branch_index = torch.arange(branch, device="cuda:0", dtype=torch.long)
-            branch_index = branch_index + j * max_num_samples
-            ith_gather_list.append(branch_index)
-        ith_gather_list = torch.cat(ith_gather_list)
-        sample_gather_indices[i] = ith_gather_list
     
 
 accelerator = Accelerator()
@@ -288,9 +283,9 @@ dataloader = accelerator.prepare(dataloader)
 
 if args.Mode == 'benchmark':
     simulation_benchmark(target_model=target_model, draft_model=draft_model, dataloader=dataloader, T=args.T, top_p=args.P, 
-                                               max_length=args.M, residual_graph = residual_graph, grow_map = grow_map, sampling_callables=sampling_callables, sample_gather_indices = sample_gather_indices)
+                                               max_length=args.M, residual_graph = residual_graph, grow_map = grow_map, sampling_callables=sampling_callables, branch_lists = branch_lists)
 elif args.Mode == 'baseline':
     simulation_baseline(target_model=target_model, dataloader=dataloader, T=args.T, top_p=args.P, max_length=args.M)
 elif args.Mode == 'greedy':
     simulation_fast(target_model=target_model, draft_model=draft_model, dataloader=dataloader, T=args.T, top_p=args.P,
-                                     max_length=args.M, residual_graph = residual_graph, grow_map = grow_map, sampling_callables=sampling_callables, sample_gather_indices = sample_gather_indices)
+                                     max_length=args.M, residual_graph = residual_graph, grow_map = grow_map, sampling_callables=sampling_callables, branch_lists = branch_lists)

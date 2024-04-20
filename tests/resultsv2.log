@@ -1,0 +1,919 @@
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :254.39185s, latency :0.01028s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :267.59523s, latency :0.01082s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :297.36408s, latency :0.01202s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :183.33734s, latency :0.00703s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :187.60382s, latency :0.00738s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+> /data/home/wxu/github/Sequoia/Tree/SpecTree.py(282)construct_grow_map()
+-> if benchmark:
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+> /data/home/wxu/github/Sequoia/Tree/SpecTree.py(82)tree_search()
+-> new_tokens_accpet_probs = torch.gather(accept_probs, -1, new_tokens_set.view(len(idx_list) ,-1))
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :296.80647s, latency :0.01200s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :180.75461s, latency :0.00693s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :185.35541s, latency :0.00729s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :327.32325s, latency :0.01545s, decoding step: 21192, large model step: 8225, 2.5765349544072946
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :283.16257s, latency :0.01126s, decoding step: 25139, large model step: 7062, 3.559756442934013
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :180.68779s, latency :0.00693s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :185.83534s, latency :0.00731s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :268.36720s, latency :0.01085s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :266.44431s, latency :0.01077s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :181.54321s, latency :0.00696s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :186.09290s, latency :0.00732s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :276.42234s, latency :0.01117s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :180.51356s, latency :0.00692s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :186.23445s, latency :0.00733s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :315.13185s, latency :0.01274s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :180.89274s, latency :0.00694s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :184.90223s, latency :0.00727s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :284.06803s, latency :0.01381s, decoding step: 20566, large model step: 6932, 2.966820542412002
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :180.61017s, latency :0.00693s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :186.11350s, latency :0.00732s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :311.08317s, latency :0.01461s, decoding step: 21298, large model step: 7453, 2.8576412183013553
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+0
+0
+7
+0
+1
+9
+56
+0
+1
+9
+56
+88
+113
+0
+2
+0
+1
+13
+76
+101
+0
+1
+24
+0
+1
+11
+0
+2
+0
+0
+1
+11
+0
+0
+1
+9
+56
+89
+0
+1
+9
+56
+88
+113
+0
+1
+11
+80
+0
+1
+9
+56
+0
+1
+12
+0
+1
+9
+56
+89
+0
+1
+9
+56
+88
+0
+1
+11
+0
+0
+0
+1
+9
+56
+88
+113
+0
+1
+9
+0
+1
+9
+56
+88
+117
+0
+5
+0
+1
+11
+0
+0
+1
+9
+56
+90
+0
+1
+10
+62
+0
+1
+12
+75
+0
+1
+9
+66
+107
+0
+1
+9
+56
+0
+1
+9
+56
+88
+114
+0
+1
+9
+56
+90
+125
+0
+1
+9
+57
+90
+0
+3
+0
+1
+0
+6
+0
+0
+0
+0
+1
+9
+56
+88
+0
+0
+1
+10
+0
+2
+0
+5
+46
+0
+4
+0
+1
+10
+0
+1
+11
+66
+0
+3
+39
+84
+0
+4
+0
+1
+9
+56
+88
+113
+0
+2
+0
+2
+15
+0
+0
+0
+1
+0
+2
+0
+1
+9
+56
+0
+1
+10
+70
+0
+2
+13
+0
+1
+15
+0
+0
+1
+10
+68
+0
+0
+3
+0
+1
+9
+56
+0
+1
+9
+56
+90
+0
+2
+0
+1
+9
+56
+0
+1
+9
+57
+0
+1
+13
+0
+1
+10
+61
+107
+0
+5
+55
+0
+1
+10
+65
+0
+1
+9
+57
+89
+0
+0
+0
+0
+0
+0
+7
+0
+0
+0
+0
+1
+9
+56
+0
+1
+9
+0
+1
+9
+57
+0
+1
+9
+56
+88
+0
+1
+9
+56
+0
+0
+1
+9
+59
+0
+1
+9
+56
+88
+113
+0
+1
+9
+58
+0
+1
+9
+58
+0
+1
+9
+56
+90
+0
+3
+0
+2
+0
+1
+9
+56
+88
+0
+2
+0
+2
+19
+0
+0
+1
+11
+0
+1
+9
+0
+2
+0
+3
+0
+0
+1
+10
+68
+0
+1
+9
+56
+89
+0
+1
+9
+0
+1
+10
+0
+1
+9
+56
+88
+113
+0
+1
+9
+56
+94
+0
+6
+0
+2
+0
+1
+14
+84
+0
+1
+9
+62
+0
+0
+1
+0
+0
+1
+12
+0
+1
+9
+60
+0
+1
+9
+57
+0
+1
+9
+56
+88
+0
+1
+9
+56
+88
+0
+0
+2
+0
+0
+2
+31
+0
+1
+11
+0
+5
+0
+1
+9
+56
+89
+0
+1
+9
+61
+0
+6
+51
+0
+1
+0
+1
+9
+67
+0
+1
+0
+1
+10
+0
+1
+0
+0
+0
+1
+9
+0
+1
+9
+56
+89
+0
+1
+9
+56
+0
+1
+9
+56
+89
+0
+1
+9
+0
+1
+9
+0
+1
+13
+0
+0
+1
+22
+0
+2
+0
+1
+9
+57
+97
+0
+0
+2
+0
+0
+0
+0
+0
+2
+0
+0
+3
+0
+0
+0
+1
+9
+0
+0
+1
+0
+2
+0
+1
+0
+3
+0
+0
+0
+1
+10
+0
+1
+9
+56
+91
+0
+1
+9
+0
+1
+9
+56
+0
+0
+1
+9
+56
+88
+113
+0
+1
+9
+0
+0
+1
+9
+56
+90
+0
+1
+0
+0
+1
+23
+0
+1
+9
+0
+6
+0
+2
+0
+1
+9
+56
+88
+0
+2
+0
+2
+0
+3
+0
+2
+0
+1
+10
+0
+0
+1
+10
+60
+0
+1
+10
+58
+0
+0
+2
+17
+0
+1
+9
+56
+88
+115
+0
+1
+13
+0
+3
+0
+4
+35
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+1
+11
+67
+0
+1
+0
+0
+0
+0
+0
+0
+0
+1
+9
+0
+0
+0
+0
+0
+0
+1
+10
+0
+0
+0
+0
+0
+0
+0
+1
+13
+0
+1
+0
+1
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :295.00450s, latency :0.01173s, decoding step: 25139, large model step: 7062, 3.559756442934013
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :182.12210s, latency :0.00698s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :187.79052s, latency :0.00739s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :344.51239s, latency :0.01675s, decoding step: 20566, large model step: 6932, 2.966820542412002
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :189.22911s, latency :0.00726s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :205.80061s, latency :0.00810s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :308.50824s, latency :0.01247s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :181.60094s, latency :0.00696s, decoding step: 26076, large model step: 6437, 4.050955414012739
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+128
+total time :185.41156s, latency :0.00729s, decoding step: 25418, large model step: 6590, 3.8570561456752657
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+total time :305.97937s, latency :0.01237s, decoding step: 24736, large model step: 7399, 3.3431544803351803
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='cnn', growmap='../A100_growmaps/68m_7b/growmaps/A100-CNN-68m-7b-greedy.pt', start=0, end=200, T=0.6, P=1.0, seed=17, M=384, Mode='greedy', offloading=False)
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
+Namespace(model='JackFram/llama-68m', target='/data5/xylu/Llama_2_7b_hf/', dataset='openwebtext', growmap='../A100_growmaps/68m_7b/growmaps/A100-OpenWebText-68m-7b-stochastic.pt', start=0, end=200, T=0.6, P=1.0, M=384, seed=17, Mode='greedy', offloading=False)
+128
