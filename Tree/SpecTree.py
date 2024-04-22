@@ -54,7 +54,6 @@ class SpecTree(Tree):
         
         self.draft_logits = torch.zeros((self.max_length, vocab_size), dtype=self.dtype).to(self.device)
         self.draft_accept_probs = torch.zeros((self.max_length, 1), dtype=self.dtype).to(self.device)
-        self.sample_gather_indices = torch.arange(self.max_length, device=self.device, dtype=torch.long)
         if draft_kv_len == 0:
             draft_model_outputs = self.draft_model_engine.inference(input_ids=self.tokens[:self.num_nodes].unsqueeze(0), 
                                 storage_ids=self.storage_ids[:self.num_nodes], 
@@ -82,11 +81,19 @@ class SpecTree(Tree):
         new_tokens_accpet_probs,index = torch.sort(new_tokens_accpet_probs, -1, descending=True)
         new_tokens_set = torch.gather(new_tokens_set.view(len(idx_list) ,-1), -1, index)
         seq_probs =  (self.draft_accept_probs[idx_list] + new_tokens_accpet_probs).view(-1) # new_tokens_accpet_probs.view(-1) # 
-        _, index = torch.sort(seq_probs, descending=True)
+        seq_probs, index = torch.sort(seq_probs, descending=True)
         n_branch_list = [0 for _ in range(candidate_lens)]
+        successors = [[] for _ in range(candidate_lens)]
+        node_pre = len(idx_list)
         for i in range(nums):
-             n_branch_list[index[i].item()//new_tokens_set.shape[1]] += 1
-        return n_branch_list, seq_probs, new_tokens_set.view(-1)
+             father = index[i].item()//new_tokens_set.shape[1]
+             n_branch_list[father] += 1
+             successors[father].append(idx_list[-1].item()+1+i)
+             self.attn_mask[self.num_nodes+i] = self.attn_mask[self.num_nodes-node_pre+father]
+             self.attn_mask[self.num_nodes+i,self.num_nodes+i] = 0
+
+        self.Successors.extend(successors)
+        return n_branch_list, seq_probs[:nums], new_tokens_set.view(-1)[index[:nums]]
 
     @torch.inference_mode()
     def accept_pro_cal(self, sampling_probs):
@@ -113,20 +120,10 @@ class SpecTree(Tree):
         new_tokens_set, sampling_probs = self.sampling_callables[grow_step](self.draft_logits[idx_list], self.rand[idx_list])
         max_num_samples = new_tokens_set.shape[0]//node_pre
         accept_probs = self.accept_pro_cal(sampling_probs)
-        n_branch_list, seq_probs, new_tokens_set = self.tree_search(accept_probs, new_tokens_set, idx_list, nums = total_branch)
+        n_branch_list, sel_seq_probs, sel_tokens_set = self.tree_search(accept_probs, new_tokens_set, idx_list, nums = total_branch)
         
-        cum_sum_cnt = 0
-        for j, branch in enumerate(n_branch_list):
-            self.sample_gather_indices[cum_sum_cnt:cum_sum_cnt+branch] = j * max_num_samples + torch.arange(branch, device=self.device, dtype=torch.long)
-            self.Successors.append([k+cum_sum_cnt+1+idx_list[-1].item() for k in range(branch)])
-            self.attn_mask[self.num_nodes+cum_sum_cnt:self.num_nodes+cum_sum_cnt+branch,:self.num_nodes-node_pre+j+1] = self.attn_mask[self.num_nodes-node_pre+j,:self.num_nodes-node_pre+j+1]
-            cum_sum_cnt += branch
-        for j in range(cum_sum_cnt):
-            self.attn_mask[self.num_nodes+j,self.num_nodes+j] = 0
-        
-        gather_indices = self.sample_gather_indices[:total_branch]
-        self.tokens[self.num_nodes: self.num_nodes + total_branch] = new_tokens_set[gather_indices]
-        self.draft_accept_probs[idx_list[-1].item()+1: 1+idx_list[-1] + total_branch] = seq_probs[gather_indices][:,None]
+        self.tokens[self.num_nodes: self.num_nodes + total_branch] = sel_tokens_set
+        self.draft_accept_probs[idx_list[-1].item()+1: 1+idx_list[-1] + total_branch] = sel_seq_probs[:, None]
         if benchmark:
                     torch.cuda.synchronize()
                     t2 = time.time()
