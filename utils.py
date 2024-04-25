@@ -14,7 +14,7 @@ def sampling_without_replacement(
         temperature :float):
 
         sampling_q = softmax(sampling_logits / temperature, dim=-1)
-        position = (rand.log()/sampling_q).topk(k=num_samples).indices.flatten()
+        position = (rand.log()/sampling_q).topk(k=num_samples).indices
         return position, sampling_q
 
 def sampling_with_replacement(
@@ -24,7 +24,7 @@ def sampling_with_replacement(
 
         #sampling_q = softmax(sampling_logits / temperature, dim=-1)
         sampling_q = softmax(sampling_logits / temperature, dim=-1)    
-        position = sampling_q.multinomial(num_samples=num_samples, replacement=False).flatten()
+        position = sampling_q.multinomial(num_samples=num_samples, replacement=False)
         return position, sampling_q
 def sampling_argmax(
         sampling_logits: torch.Tensor, 
@@ -169,10 +169,11 @@ def cuda_graph_for_sampling_without_replacement(
                  temperature
             )
     def run(draft_logits, rand_vector):
-        static_sampling_logits.copy_(draft_logits)
-        static_rand.copy_(rand_vector)
+        N_dim = draft_logits.shape[0]
+        static_sampling_logits[:N_dim].copy_(draft_logits[:N_dim])
+        static_rand[:N_dim].copy_(rand_vector[:N_dim])
         graph.replay()
-        return static_position.clone(), sampling_q.clone()
+        return static_position[:N_dim].clone().flatten(), sampling_q[:N_dim].clone()
     
     return run
 

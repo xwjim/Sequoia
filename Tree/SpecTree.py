@@ -54,6 +54,8 @@ class SpecTree(Tree):
         
         self.draft_logits = torch.zeros((self.max_length, vocab_size), dtype=self.dtype).to(self.device)
         self.draft_accept_probs = torch.zeros((self.max_length, 1), dtype=self.dtype).to(self.device)
+        self.Ancestors = torch.zeros((self.tree_size), dtype=self.dtype).to(self.device)
+        self.Ancestors.fill_(0)
         if draft_kv_len == 0:
             draft_model_outputs = self.draft_model_engine.inference(input_ids=self.tokens[:self.num_nodes].unsqueeze(0), 
                                 storage_ids=self.storage_ids[:self.num_nodes], 
@@ -77,19 +79,48 @@ class SpecTree(Tree):
     @torch.inference_mode()
     def tree_search(self, accept_probs, new_tokens_set, idx_list, new_tokens_num):
         candidate_lens = len(idx_list)
+        samples_nums = len(new_tokens_set)//candidate_lens
         new_tokens_accpet_probs = torch.gather(accept_probs, -1, new_tokens_set.view(len(idx_list) ,-1))
         new_tokens_accpet_probs,index = torch.sort(new_tokens_accpet_probs, -1, descending=True)
         new_tokens_set = torch.gather(new_tokens_set.view(len(idx_list) ,-1), -1, index)
         seq_probs =  (self.draft_accept_probs[idx_list] + new_tokens_accpet_probs).view(-1) # new_tokens_accpet_probs.view(-1) # 
         seq_probs, index = torch.sort(seq_probs, descending=True)
-        n_branch_list = [0 for _ in range(candidate_lens)]
+
+        def fetch_new_token_num(index, samples_nums, maxnum):
+            
+            assert len(index) > 0
+
+            past_token_num = 1
+            new_tokens_num = 0
+            p2 = 1
+            while p2 < index.shape[0] and past_token_num + new_tokens_num < maxnum:
+                 father = index[p2].item() // samples_nums
+                 if father + new_tokens_num + 1 > maxnum:
+                      p2 += 1
+                      continue
+                 else:
+                      past_token_num = max(father, past_token_num)
+                      new_tokens_num += 1
+                      p2 += 1
+            return past_token_num, new_tokens_num
+
+        # past_token_num, new_tokens_num = fetch_new_token_num(index, samples_nums, self.tree_size - idx_list[0])
+        past_token_num = candidate_lens
+        if past_token_num < len(idx_list):
+            self.num_nodes -= len(idx_list) - past_token_num
+            self.draft_kv_len -= len(idx_list) - past_token_num
+            idx_list = idx_list[:past_token_num]
+        if new_tokens_num == 0:
+            return idx_list, 0
+        
         node_pre = len(idx_list)
+
         for i in range(new_tokens_num):
-             father = index[i].item()//new_tokens_set.shape[1]
-             n_branch_list[father] += 1
-             self.Successors[idx_list[father]].append(idx_list[-1].item()+1+i)
-             self.attn_mask[self.num_nodes+i] = self.attn_mask[self.num_nodes-node_pre+father]
-             self.attn_mask[self.num_nodes+i,self.num_nodes+i] = 0
+            father = index[i].item()//samples_nums
+            self.Ancestors[idx_list[-1].item()+1+i] = idx_list[father]
+            self.attn_mask[self.num_nodes+i] = self.attn_mask[self.num_nodes-node_pre+father]
+            self.attn_mask[self.num_nodes+i,self.num_nodes+i] = 0
+
 
         self.tokens[self.num_nodes: self.num_nodes + new_tokens_num] = new_tokens_set.view(-1)[index[:new_tokens_num]]
         self.draft_accept_probs[idx_list[-1].item()+1: 1+idx_list[-1] + new_tokens_num] = seq_probs[:new_tokens_num][:, None]
@@ -119,6 +150,8 @@ class SpecTree(Tree):
         new_tokens_set, sampling_probs = self.sampling_callables[grow_step](self.draft_logits[idx_list], self.rand[idx_list])
         accept_probs = self.accept_pro_cal(sampling_probs)
         idx_list, step_nums = self.tree_search(accept_probs, new_tokens_set, idx_list, step_nums)
+        if step_nums == 0:
+             return (idx_list[-1]+1,idx_list[-1]+1)
         
         if benchmark:
                     torch.cuda.synchronize()
@@ -263,7 +296,7 @@ class SpecTree(Tree):
             compute_time = 0
         start_pos = 0
         end_pos = 1
-        self.Successors = [[] for _ in range(self.tree_size)]
+        self.Ancestors = [-1 for _ in range(self.tree_size)]
         for i in range(self.draft_step - 1):
                 if benchmark:
                         (start_pos, end_pos), t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], sum(branch_lists[i]), benchmark=benchmark, grow_step=i)
@@ -271,8 +304,11 @@ class SpecTree(Tree):
                         compute_time += t2
                 else:
                         (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], sum(branch_lists[i]), grow_step=i)
-        # for branch in branch_lists[self.draft_step - 1]:
-        #     self.Successors.append([k+end_pos for k in range(branch)])
+                if start_pos == end_pos:
+                    break
+        self.Successors = [[] for _ in range(self.tree_size)]
+        for i in range(1, self.tree_size):
+            self.Successors[self.Ancestors[i]].append(i)
              
         if benchmark:
             return sample_time, compute_time
