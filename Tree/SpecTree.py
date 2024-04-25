@@ -75,7 +75,7 @@ class SpecTree(Tree):
         self.seq_to_use = list(range(self.max_length))
 
     @torch.inference_mode()
-    def tree_search(self, accept_probs, new_tokens_set, idx_list, nums):
+    def tree_search(self, accept_probs, new_tokens_set, idx_list, new_tokens_num):
         candidate_lens = len(idx_list)
         new_tokens_accpet_probs = torch.gather(accept_probs, -1, new_tokens_set.view(len(idx_list) ,-1))
         new_tokens_accpet_probs,index = torch.sort(new_tokens_accpet_probs, -1, descending=True)
@@ -83,17 +83,19 @@ class SpecTree(Tree):
         seq_probs =  (self.draft_accept_probs[idx_list] + new_tokens_accpet_probs).view(-1) # new_tokens_accpet_probs.view(-1) # 
         seq_probs, index = torch.sort(seq_probs, descending=True)
         n_branch_list = [0 for _ in range(candidate_lens)]
-        successors = [[] for _ in range(candidate_lens)]
         node_pre = len(idx_list)
-        for i in range(nums):
+        for i in range(new_tokens_num):
              father = index[i].item()//new_tokens_set.shape[1]
              n_branch_list[father] += 1
-             successors[father].append(idx_list[-1].item()+1+i)
+             self.Successors[idx_list[father]].append(idx_list[-1].item()+1+i)
              self.attn_mask[self.num_nodes+i] = self.attn_mask[self.num_nodes-node_pre+father]
              self.attn_mask[self.num_nodes+i,self.num_nodes+i] = 0
 
-        self.Successors.extend(successors)
-        return n_branch_list, seq_probs[:nums], new_tokens_set.view(-1)[index[:nums]]
+        self.tokens[self.num_nodes: self.num_nodes + new_tokens_num] = new_tokens_set.view(-1)[index[:new_tokens_num]]
+        self.draft_accept_probs[idx_list[-1].item()+1: 1+idx_list[-1] + new_tokens_num] = seq_probs[:new_tokens_num][:, None]
+        self.num_nodes = self.num_nodes + new_tokens_num
+
+        return idx_list, new_tokens_num
 
     @torch.inference_mode()
     def accept_pro_cal(self, sampling_probs):
@@ -104,38 +106,28 @@ class SpecTree(Tree):
 
 
     @torch.inference_mode()
-    def collective_grow_static(self, idx_list :list[int], n_branch_list :list[int], benchmark=False, grow_step = None):
+    def collective_grow_static(self, idx_list :list[int], step_nums :int, benchmark=False, grow_step = None):
         
         if benchmark:
             x1 = 0.0
             x2 = 0.0
-        
-        total_branch = sum(n_branch_list)
-        node_pre = len(idx_list)
 
         if benchmark:
                 torch.cuda.synchronize()
                 t1 = time.time()
 
         new_tokens_set, sampling_probs = self.sampling_callables[grow_step](self.draft_logits[idx_list], self.rand[idx_list])
-        max_num_samples = new_tokens_set.shape[0]//node_pre
         accept_probs = self.accept_pro_cal(sampling_probs)
-        n_branch_list, sel_seq_probs, sel_tokens_set = self.tree_search(accept_probs, new_tokens_set, idx_list, nums = total_branch)
+        idx_list, step_nums = self.tree_search(accept_probs, new_tokens_set, idx_list, step_nums)
         
-        self.tokens[self.num_nodes: self.num_nodes + total_branch] = sel_tokens_set
-        self.draft_accept_probs[idx_list[-1].item()+1: 1+idx_list[-1] + total_branch] = sel_seq_probs[:, None]
         if benchmark:
                     torch.cuda.synchronize()
                     t2 = time.time()
                     x1 += (t2 - t1)
-            
-        self.num_nodes = self.num_nodes + total_branch
         
-
-        
-        start_pos = self.num_nodes - total_branch
+        start_pos = self.num_nodes - step_nums
         end_pos = self.num_nodes
-        attn_mask = self.attn_mask[self.num_nodes - total_branch: self.num_nodes]
+        attn_mask = self.attn_mask[self.num_nodes - step_nums: self.num_nodes]
         attn_mask = attn_mask[None, None, :, :]
 
         self.position_ids[start_pos : end_pos] = self.position_ids[start_pos-1].item()+1
@@ -145,17 +137,16 @@ class SpecTree(Tree):
             position_ids = self.position_ids[start_pos : end_pos].unsqueeze(0),
             attn_mask = attn_mask,
             storage_ids=self.storage_ids[self.draft_kv_len: self.num_nodes]
-            
         )
         self.draft_kv_len = self.num_nodes
-        self.draft_logits[start_pos - self.ground_truth_len + 1:end_pos - self.ground_truth_len + 1] = draft_model_outputs[0][-total_branch:]
+        self.draft_logits[start_pos - self.ground_truth_len + 1:end_pos - self.ground_truth_len + 1] = draft_model_outputs[0][-step_nums:]
         if benchmark:
                     torch.cuda.synchronize()
                     t3 = time.time()
                     x2 += (t3 - t2)
         if benchmark:
-            return n_branch_list, x1, x2
-        return n_branch_list
+            return (idx_list[-1]+1,idx_list[-1]+1+step_nums), x1, x2
+        return (idx_list[-1]+1,idx_list[-1]+1+step_nums)
     
     @torch.inference_mode()
     def accept_step(self, parent_id :int):
@@ -272,18 +263,16 @@ class SpecTree(Tree):
             compute_time = 0
         start_pos = 0
         end_pos = 1
-        self.Successors = []
+        self.Successors = [[] for _ in range(self.tree_size)]
         for i in range(self.draft_step - 1):
                 if benchmark:
-                        branch_lists[i], t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], branch_lists[i], benchmark=benchmark, grow_step=i)
+                        (start_pos, end_pos), t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], sum(branch_lists[i]), benchmark=benchmark, grow_step=i)
                         sample_time += t1
                         compute_time += t2
                 else:
-                        branch_lists[i] = self.collective_grow_static(self.num_index[start_pos:end_pos], branch_lists[i], grow_step=i)
-                start_pos = end_pos
-                end_pos += sum(branch_lists[i])
-        for branch in branch_lists[self.draft_step - 1]:
-            self.Successors.append([k+end_pos for k in range(branch)])
+                        (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], sum(branch_lists[i]), grow_step=i)
+        # for branch in branch_lists[self.draft_step - 1]:
+        #     self.Successors.append([k+end_pos for k in range(branch)])
              
         if benchmark:
             return sample_time, compute_time

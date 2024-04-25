@@ -264,8 +264,8 @@ else:
     draft_model.initialize_cuda_graph(graph_capture_list)
     sampling_callables = {}
     for i in range(draft_step - 1):
-        idx_len = len(idx_lists[i]) # 1 if i == 0 else 128 #
-        num_samples = max(branch_lists[i]) # 128 if i == 0 else 10#
+        idx_len = len(idx_lists[i]) # 1 if i == 0 else 128 # 
+        num_samples = max(branch_lists[i]) # 128 if i == 0 else 10 # 
         sampling_callables[i] = cuda_graph_for_sampling_without_replacement(
             max_length=args.M, idx_len=idx_len, num_samples=num_samples,
             temperature=args.T)
