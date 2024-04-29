@@ -81,34 +81,25 @@ class SpecTree(Tree):
         candidate_lens = len(idx_list)
         samples_nums = len(new_tokens_set)//candidate_lens
         new_tokens_accpet_probs = torch.gather(accept_probs, -1, new_tokens_set.view(len(idx_list) ,-1))
-        new_tokens_accpet_probs,index = torch.sort(new_tokens_accpet_probs, -1, descending=True)
-        new_tokens_set = torch.gather(new_tokens_set.view(len(idx_list) ,-1), -1, index)
         seq_probs =  (self.draft_accept_probs[idx_list] + new_tokens_accpet_probs).view(-1) # new_tokens_accpet_probs.view(-1) # 
         seq_probs, index = torch.sort(seq_probs, descending=True)
 
-        def fetch_new_token_num(index, samples_nums, maxnum):
+        def fetch_new_token_num(candidate_probs, seq_probs, maxnum):
             
-            assert len(index) > 0
-
-            past_token_num = 1
-            new_tokens_num = 0
-            p2 = 1
-            while p2 < index.shape[0] and past_token_num + new_tokens_num < maxnum:
-                 father = index[p2].item() // samples_nums
-                 if father + new_tokens_num + 1 > maxnum:
-                      p2 += 1
-                      continue
-                 else:
-                      past_token_num = max(father, past_token_num)
-                      new_tokens_num += 1
-                      p2 += 1
+            N_candidate = len(candidate_probs)
+            probs = torch.cat((candidate_probs, seq_probs),dim=-1)
+            _, pind = torch.sort(probs, descending=True)
+            past_token_num = torch.sum((pind[:maxnum] < N_candidate)).item()
+            new_tokens_num = min(maxnum - past_token_num, len(seq_probs))
+                      
             return past_token_num, new_tokens_num
 
-        # past_token_num, new_tokens_num = fetch_new_token_num(index, samples_nums, self.tree_size - idx_list[0])
-        past_token_num = candidate_lens
+        past_token_num, new_tokens_num = fetch_new_token_num(self.draft_accept_probs[idx_list,0] ,seq_probs, self.tree_size - idx_list[0].item())
+        # past_token_num = candidate_lens
         if past_token_num < len(idx_list):
-            self.num_nodes -= len(idx_list) - past_token_num
-            self.draft_kv_len -= len(idx_list) - past_token_num
+            self.num_nodes -= (len(idx_list) - past_token_num)
+            self.draft_kv_len -= (len(idx_list) - past_token_num)
+            self.draft_model_engine.set_kv_len(self.draft_kv_len)
             idx_list = idx_list[:past_token_num]
         if new_tokens_num == 0:
             return idx_list, 0
@@ -133,6 +124,7 @@ class SpecTree(Tree):
         sorted, indices = torch.sort(sampling_probs, dim=-1, descending=True)
         cumsum_p = torch.cumsum(sorted, dim=-1)
         cumsum_p[...,1:] = cumsum_p[...,1:] - cumsum_p[...,1:]*cumsum_p[...,:-1]
+        cumsum_p.masked_fill_(cumsum_p < 1e-9, 1e-9)
         return torch.scatter(sampling_probs, dim=-1,index = indices,src = cumsum_p).log()
 
 
@@ -304,7 +296,7 @@ class SpecTree(Tree):
                         compute_time += t2
                 else:
                         (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], sum(branch_lists[i]), grow_step=i)
-                if start_pos == end_pos:
+                if start_pos >= end_pos-1:
                     break
         self.Successors = [[] for _ in range(self.tree_size)]
         for i in range(1, self.tree_size):
