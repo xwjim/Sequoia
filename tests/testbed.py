@@ -77,7 +77,7 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
             torch.cuda.synchronize()
             t1 = time.time()
             while input_ids.shape[1] < 256 and terminate == False:
-                spectree.construct_grow_map(branch_lists = grow_map['branches'])
+                spectree.construct_grow_map()
                 valid_tokens, draft_kv_len, target_kv_len, terminate = spectree.verify()
                 
                 num_decoding_steps += (valid_tokens.shape[0] - input_ids.shape[1])

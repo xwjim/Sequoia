@@ -87,14 +87,14 @@ class SpecTree(Tree):
         def fetch_new_token_num(candidate_probs, seq_probs, maxnum):
             
             N_candidate = len(candidate_probs)
-            probs = torch.cat((candidate_probs, seq_probs),dim=-1)
+            probs = torch.cat((candidate_probs, seq_probs[:maxnum]),dim=-1)
             _, pind = torch.sort(probs, descending=True)
             past_token_num = torch.sum((pind[:maxnum] < N_candidate)).item()
             new_tokens_num = min(maxnum - past_token_num, len(seq_probs))
                       
             return past_token_num, new_tokens_num
 
-        past_token_num, new_tokens_num = fetch_new_token_num(self.draft_accept_probs[idx_list,0] ,seq_probs, self.tree_size - idx_list[0].item())
+        past_token_num, new_tokens_num = fetch_new_token_num(self.draft_accept_probs[idx_list,0] ,seq_probs, new_tokens_num+len(idx_list)) # self.tree_size - idx_list[0].item()
         # past_token_num = candidate_lens
         if past_token_num < len(idx_list):
             self.num_nodes -= (len(idx_list) - past_token_num)
@@ -124,7 +124,7 @@ class SpecTree(Tree):
         sorted, indices = torch.sort(sampling_probs, dim=-1, descending=True)
         cumsum_p = torch.cumsum(sorted, dim=-1)
         cumsum_p[...,1:] = cumsum_p[...,1:] - cumsum_p[...,1:]*cumsum_p[...,:-1]
-        cumsum_p.masked_fill_(cumsum_p < 1e-9, 1e-9)
+        cumsum_p.masked_fill_(cumsum_p < torch.finfo(sampling_probs.dtype).tiny, torch.finfo(sampling_probs.dtype).tiny)
         return torch.scatter(sampling_probs, dim=-1,index = indices,src = cumsum_p).log()
 
 
@@ -140,7 +140,8 @@ class SpecTree(Tree):
                 t1 = time.time()
 
         new_tokens_set, sampling_probs = self.sampling_callables[grow_step](self.draft_logits[idx_list], self.rand[idx_list])
-        accept_probs = self.accept_pro_cal(sampling_probs)
+        sampling_probs.masked_fill_(sampling_probs < torch.finfo(sampling_probs.dtype).tiny, torch.finfo(sampling_probs.dtype).tiny)
+        accept_probs = sampling_probs.log() #self.accept_pro_cal(sampling_probs)
         idx_list, step_nums = self.tree_search(accept_probs, new_tokens_set, idx_list, step_nums)
         if step_nums == 0:
              return (idx_list[-1]+1,idx_list[-1]+1)
@@ -282,20 +283,21 @@ class SpecTree(Tree):
              return self.tokens[:accept_length], accept_length, accept_length, terminal
     def verbose(self):
         super().verbose()
-    def construct_grow_map(self, benchmark = False, branch_lists = None):
+    def construct_grow_map(self, benchmark = False):
         if benchmark:
             sample_time = 0
             compute_time = 0
         start_pos = 0
         end_pos = 1
         self.Ancestors = [-1 for _ in range(self.tree_size)]
+        self.draft_accept_probs.fill_(0)
         for i in range(self.draft_step - 1):
                 if benchmark:
-                        (start_pos, end_pos), t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], sum(branch_lists[i]), benchmark=benchmark, grow_step=i)
+                        (start_pos, end_pos), t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], 20, benchmark=benchmark, grow_step=i)
                         sample_time += t1
                         compute_time += t2
                 else:
-                        (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], sum(branch_lists[i]), grow_step=i)
+                        (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], 20, grow_step=i)
                 if start_pos >= end_pos-1:
                     break
         self.Successors = [[] for _ in range(self.tree_size)]
