@@ -43,7 +43,7 @@ setup_seed(args.seed)
 
 
 def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInferenceEngine, dataloader: DataLoader, T=0.6, top_p=0.9,
-            max_length=512, residual_graph=None, grow_map=None, sampling_callables = None,):
+            max_length=512, residual_graph=None, graph_capture_list=None, sampling_callables = None,):
     num_eval_steps = len(dataloader)
     num_decoding_steps = 0
     num_large_model_steps = 0
@@ -73,7 +73,7 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
                                     position_ids = position_ids,
                                     residual_graph = residual_graph,
                                     sampling_callables=sampling_callables,
-                                    draft_step = len(grow_map["roots"]))
+                                    graph_capture_list = graph_capture_list)
             torch.cuda.synchronize()
             t1 = time.time()
             while input_ids.shape[1] < 256 and terminate == False:
@@ -141,7 +141,7 @@ def simulation_baseline(target_model : GraphInferenceEngineTG, dataloader: DataL
     print("total time :{:.5f}s, latency :{:.5f}s, decoding step: {}".format(total_time, total_time / num_decoding_steps, num_decoding_steps))
     return num_decoding_steps
 def simulation_benchmark(target_model : GraphInferenceEngineTG, draft_model: GraphInferenceEngine, dataloader: DataLoader, T=0.6, top_p=0.9, 
-                max_length=512, residual_graph=None, grow_map=None, sampling_callables = None,):
+                max_length=512, residual_graph=None, graph_capture_list=None, sampling_callables = None,):
     num_eval_steps = len(dataloader)
     num_decoding_steps = 0
     num_large_model_steps = 0
@@ -172,13 +172,13 @@ def simulation_benchmark(target_model : GraphInferenceEngineTG, draft_model: Gra
             spectree = SpecTree(prefix=input_ids.squeeze(0), device='cuda:0', temperature=T,
                                         top_p=top_p, 
                                         draft_kv_len=draft_kv_len, target_kv_len=target_kv_len,
-                                        draft_model_engine=draft_model, target_model_engine=target_model, max_length=max_length, grow_map=grow_map,
+                                        draft_model_engine=draft_model, target_model_engine=target_model, max_length=max_length,
                                         attn_mask = attn_mask, sequence = sequence, new_tokens_buffer = new_tokens_buffer, 
                                         parents_buffer = parents_buffer, 
                                         position_ids = position_ids,
                                         residual_graph = residual_graph,
                                         sampling_callables=sampling_callables,
-                                        draft_step = len(grow_map["roots"]))
+                                        graph_capture_list = graph_capture_list)
             while input_ids.shape[1] < 256 and terminate == False:
                 torch.cuda.synchronize()
                 t1 = time.time()
@@ -253,19 +253,14 @@ else:
     path = args.growmap
     grow_map = torch.load(path)
 
-    tree_size = grow_map["size"]
-    print(tree_size)
-    idx_lists = grow_map["roots"]
-    branch_lists = grow_map['branches']
-    draft_step = len(grow_map["roots"])
-    
-    graph_capture_list = [sum(x) for x in branch_lists]
+    draft_step = 6
+    graph_capture_list = [20 for _ in range(draft_step)]
     graph_capture_list.append(1)
     draft_model.initialize_cuda_graph(graph_capture_list)
     sampling_callables = {}
-    for i in range(draft_step - 1):
-        idx_len = 1 if i == 0 else 128 # len(idx_lists[i]) # 
-        num_samples = 20 if i == 0 else 10 # max(branch_lists[i]) #  128 if i == 0 else 10 # 
+    for i in range(draft_step):
+        idx_len = 1 if i == 0 else 128
+        num_samples = 20 if i == 0 else 10 
         sampling_callables[i] = cuda_graph_for_sampling_without_replacement(
             max_length=args.M, idx_len=idx_len, num_samples=num_samples,
             temperature=args.T)
@@ -276,9 +271,9 @@ dataloader = accelerator.prepare(dataloader)
 
 if args.Mode == 'benchmark':
     simulation_benchmark(target_model=target_model, draft_model=draft_model, dataloader=dataloader, T=args.T, top_p=args.P, 
-                                               max_length=args.M, residual_graph = residual_graph, grow_map = grow_map, sampling_callables=sampling_callables)
+                                               max_length=args.M, residual_graph = residual_graph, graph_capture_list = graph_capture_list, sampling_callables=sampling_callables)
 elif args.Mode == 'baseline':
     simulation_baseline(target_model=target_model, dataloader=dataloader, T=args.T, top_p=args.P, max_length=args.M)
 elif args.Mode == 'greedy':
     simulation_fast(target_model=target_model, draft_model=draft_model, dataloader=dataloader, T=args.T, top_p=args.P,
-                                     max_length=args.M, residual_graph = residual_graph, grow_map = grow_map, sampling_callables=sampling_callables)
+                                     max_length=args.M, residual_graph = residual_graph, graph_capture_list = graph_capture_list, sampling_callables=sampling_callables)

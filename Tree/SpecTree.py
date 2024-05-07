@@ -18,7 +18,6 @@ class SpecTree(Tree):
                  device :str = 'cpu',
                  max_target_seq = 256,
                  vocab_size = 32000,
-                 tree_size = 128,
                  attn_mask = None, 
                  sequence = None, 
                  new_tokens_buffer = None, 
@@ -26,7 +25,7 @@ class SpecTree(Tree):
                  position_ids = None,
                  residual_graph = None,
                  sampling_callables = None,
-                 draft_step = None) -> None:
+                 graph_capture_list = None) -> None:
         super().__init__(device=device, max_length=max_length)
         assert self.max_length == draft_model_engine.engine.max_length
         self.max_target_seq = max_target_seq
@@ -36,17 +35,18 @@ class SpecTree(Tree):
         self.top_p = top_p
         self.residual_graph = residual_graph
         self.sampling_callables = sampling_callables
-        self.draft_step = draft_step
+        self.draft_step = len(graph_capture_list)
        
         self.initialize(attn_mask, sequence, new_tokens_buffer, parents_buffer, position_ids, None)
         self.set_prefix(prefix=prefix)
-        self.tree_size = tree_size
+        self.tree_size = sum(graph_capture_list)
         self.num_index = torch.arange((self.tree_size),dtype=torch.long,device=self.device)
 
         self.full_attn_mask[self.max_length - self.tree_size + 1: self.max_length, self.max_length - self.tree_size + 1: self.max_length] = torch.finfo(self.dtype).min
+        self.full_attn_mask = self.full_attn_mask - torch.diag_embed(torch.diag(self.full_attn_mask))
 
         total_nodes = len(prefix) + self.tree_size - 1
-        self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes]
+        self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes].clone()
         self.ground_truth_len = len(prefix)
         self.r = torch.rand(len(position_ids), dtype=self.dtype).to(self.device)
         
@@ -54,7 +54,7 @@ class SpecTree(Tree):
         
         self.draft_logits = torch.zeros((self.max_length, vocab_size), dtype=self.dtype).to(self.device)
         self.draft_accept_probs = torch.zeros((self.max_length, 1), dtype=self.dtype).to(self.device)
-        self.Ancestors = torch.zeros((self.tree_size), dtype=self.dtype).to(self.device)
+        self.Ancestors = torch.zeros((self.tree_size), dtype=torch.long).to(self.device)
         self.Ancestors.fill_(0)
         if draft_kv_len == 0:
             draft_model_outputs = self.draft_model_engine.inference(input_ids=self.tokens[:self.num_nodes].unsqueeze(0), 
@@ -76,13 +76,18 @@ class SpecTree(Tree):
         self.rand = torch.empty((self.tree_size, self.draft_logits.shape[1]), dtype=self.dtype).uniform_().to(self.device)
         self.seq_to_use = list(range(self.max_length))
 
+        self.change_ind = torch.zeros((512), dtype=torch.long, device=self.attn_mask.device)
+        self.zeros = torch.zeros((512), dtype=self.dtype, device=self.attn_mask.device)
+
     @torch.inference_mode()
     def tree_search(self, accept_probs, new_tokens_set, idx_list, new_tokens_num):
         candidate_lens = len(idx_list)
         samples_nums = len(new_tokens_set)//candidate_lens
         new_tokens_accpet_probs = torch.gather(accept_probs, -1, new_tokens_set.view(len(idx_list) ,-1))
-        seq_probs =  (self.draft_accept_probs[idx_list] + new_tokens_accpet_probs).view(-1) # new_tokens_accpet_probs.view(-1) # 
-        seq_probs, index = torch.sort(seq_probs, descending=True)
+        new_tokens_accpet_probs.add_(self.draft_accept_probs[idx_list])
+        new_tokens_accpet_probs = new_tokens_accpet_probs.view(-1)
+        # seq_probs =  (self.draft_accept_probs[idx_list] + new_tokens_accpet_probs).view(-1) # new_tokens_accpet_probs.view(-1) # 
+        seq_probs, index = torch.sort(new_tokens_accpet_probs, descending=True)
 
         def fetch_new_token_num(candidate_probs, seq_probs, maxnum):
             
@@ -105,13 +110,11 @@ class SpecTree(Tree):
             return idx_list, 0
         
         node_pre = len(idx_list)
-
-        for i in range(new_tokens_num):
-            father = index[i].item()//samples_nums
-            self.Ancestors[idx_list[-1].item()+1+i] = idx_list[father]
-            self.attn_mask[self.num_nodes+i] = self.attn_mask[self.num_nodes-node_pre+father]
-            self.attn_mask[self.num_nodes+i,self.num_nodes+i] = 0
-
+        self.change_ind[:new_tokens_num] = index[:new_tokens_num]//samples_nums
+        self.Ancestors[idx_list[-1].item()+1:idx_list[-1].item()+1+new_tokens_num] = idx_list[self.change_ind[:new_tokens_num]]
+        self.change_ind[:new_tokens_num].add_(self.num_nodes-node_pre)
+        self.attn_mask[self.num_nodes:self.num_nodes+new_tokens_num] = self.attn_mask[self.change_ind[:new_tokens_num]]
+        self.attn_mask.fill_diagonal_(0)
 
         self.tokens[self.num_nodes: self.num_nodes + new_tokens_num] = new_tokens_set.view(-1)[index[:new_tokens_num]]
         self.draft_accept_probs[idx_list[-1].item()+1: 1+idx_list[-1] + new_tokens_num] = seq_probs[:new_tokens_num][:, None]
@@ -141,7 +144,7 @@ class SpecTree(Tree):
 
         new_tokens_set, sampling_probs = self.sampling_callables[grow_step](self.draft_logits[idx_list], self.rand[idx_list])
         sampling_probs.masked_fill_(sampling_probs < torch.finfo(sampling_probs.dtype).tiny, torch.finfo(sampling_probs.dtype).tiny)
-        accept_probs = sampling_probs.log() #self.accept_pro_cal(sampling_probs)
+        accept_probs = sampling_probs.log() #self.accept_pro_cal(sampling_probs) #sampling_probs.log() #
         idx_list, step_nums = self.tree_search(accept_probs, new_tokens_set, idx_list, step_nums)
         if step_nums == 0:
              return (idx_list[-1]+1,idx_list[-1]+1)
@@ -291,6 +294,7 @@ class SpecTree(Tree):
         end_pos = 1
         self.Ancestors = [-1 for _ in range(self.tree_size)]
         self.draft_accept_probs.fill_(0)
+        pre_reward = 0
         for i in range(self.draft_step - 1):
                 if benchmark:
                         (start_pos, end_pos), t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], 20, benchmark=benchmark, grow_step=i)
@@ -298,6 +302,12 @@ class SpecTree(Tree):
                         compute_time += t2
                 else:
                         (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], 20, grow_step=i)
+                reward = torch.exp(self.draft_accept_probs[1:end_pos]).sum()
+                # if (reward - pre_reward) < 0.2:
+                #     break
+                # else:
+                #     pre_reward = reward
+                # print(torch.exp(self.draft_accept_probs[1:end_pos]).sum())
                 if start_pos >= end_pos-1:
                     break
         self.Successors = [[] for _ in range(self.tree_size)]
@@ -320,7 +330,7 @@ class SpecTree(Tree):
         # assert self.num_nodes == len(accept_list)+1
 
         total_nodes = len(valid_tokens) + self.tree_size - 1
-        self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes]
+        self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes].clone()
 
         
         draft_model_outputs = self.draft_model_engine.graph_inference(input_ids = self.tokens[len(accept_list): self.num_nodes].unsqueeze(0), 
@@ -368,7 +378,7 @@ class SpecTreeTest(Tree):
         self.Successors = [list(range(1, self.max_width + 1))]
         self.Successors.extend([[] for _ in range(self.max_width)])
 
-        self.attn_mask = self.full_attn_mask[:self.max_length, :self.max_length]
+        self.attn_mask = self.full_attn_mask[:self.max_length, :self.max_length].clone()
         for idx in range(self.max_width):
              self.attn_mask[idx + self.num_nodes] = self.attn_mask[self.num_nodes - 1]
              self.attn_mask[idx + self.num_nodes][idx + self.num_nodes] = 0.0
