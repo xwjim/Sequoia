@@ -254,13 +254,12 @@ else:
     grow_map = torch.load(path)
 
     draft_step = 6
-    graph_capture_list = [20 for _ in range(draft_step)]
-    graph_capture_list.append(1)
-    draft_model.initialize_cuda_graph(graph_capture_list)
+    graph_capture_list = [60, 20, 20, 10, 10, 1]
+    draft_model.initialize_cuda_graph(list(range(128)))
     sampling_callables = {}
     for i in range(draft_step):
         idx_len = 1 if i == 0 else 128
-        num_samples = 20 if i == 0 else 10 
+        num_samples = 60 if i == 0 else 10
         sampling_callables[i] = cuda_graph_for_sampling_without_replacement(
             max_length=args.M, idx_len=idx_len, num_samples=num_samples,
             temperature=args.T)

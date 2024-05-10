@@ -46,7 +46,7 @@ class SpecTree(Tree):
         self.full_attn_mask = self.full_attn_mask - torch.diag_embed(torch.diag(self.full_attn_mask))
 
         total_nodes = len(prefix) + self.tree_size - 1
-        self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes].clone()
+        self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes]
         self.ground_truth_len = len(prefix)
         self.r = torch.rand(len(position_ids), dtype=self.dtype).to(self.device)
         
@@ -86,7 +86,6 @@ class SpecTree(Tree):
         new_tokens_accpet_probs = torch.gather(accept_probs, -1, new_tokens_set.view(len(idx_list) ,-1))
         new_tokens_accpet_probs.add_(self.draft_accept_probs[idx_list])
         new_tokens_accpet_probs = new_tokens_accpet_probs.view(-1)
-        # seq_probs =  (self.draft_accept_probs[idx_list] + new_tokens_accpet_probs).view(-1) # new_tokens_accpet_probs.view(-1) # 
         seq_probs, index = torch.sort(new_tokens_accpet_probs, descending=True)
 
         def fetch_new_token_num(candidate_probs, seq_probs, maxnum):
@@ -330,7 +329,7 @@ class SpecTree(Tree):
         # assert self.num_nodes == len(accept_list)+1
 
         total_nodes = len(valid_tokens) + self.tree_size - 1
-        self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes].clone()
+        self.attn_mask = self.full_attn_mask[self.max_length - total_nodes: 2 * self.max_length - total_nodes, self.max_length - total_nodes: 2 * self.max_length - total_nodes]
 
         
         draft_model_outputs = self.draft_model_engine.graph_inference(input_ids = self.tokens[len(accept_list): self.num_nodes].unsqueeze(0), 
@@ -378,7 +377,7 @@ class SpecTreeTest(Tree):
         self.Successors = [list(range(1, self.max_width + 1))]
         self.Successors.extend([[] for _ in range(self.max_width)])
 
-        self.attn_mask = self.full_attn_mask[:self.max_length, :self.max_length].clone()
+        self.attn_mask = self.full_attn_mask[:self.max_length, :self.max_length]
         for idx in range(self.max_width):
              self.attn_mask[idx + self.num_nodes] = self.attn_mask[self.num_nodes - 1]
              self.attn_mask[idx + self.num_nodes][idx + self.num_nodes] = 0.0
