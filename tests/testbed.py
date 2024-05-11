@@ -54,7 +54,7 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
     new_tokens_buffer =  torch.zeros(max_length).long().to('cuda:0')
     parents_buffer =  torch.zeros(max_length).long().to('cuda:0')
     position_ids = torch.zeros(max_length).long().to('cuda:0')
-    
+
     with torch.no_grad():
         for step, batch in tqdm(enumerate(dataloader), total=num_eval_steps):
             input_ids = batch['input_ids'][..., :128]
@@ -254,7 +254,7 @@ else:
     grow_map = torch.load(path)
 
     draft_step = 6
-    graph_capture_list = [60, 20, 20, 10, 10, 1]
+    graph_capture_list = [80, 10, 10, 10, 10, 1]
     draft_model.initialize_cuda_graph(list(range(128)))
     sampling_callables = {}
     for i in range(draft_step):

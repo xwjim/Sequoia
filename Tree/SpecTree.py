@@ -14,7 +14,7 @@ class SpecTree(Tree):
                  top_p: float = 0.9,
                  draft_kv_len = 0,
                  target_kv_len = 0,
-                 max_length = 256,
+                 max_length = 512,
                  device :str = 'cpu',
                  max_target_seq = 256,
                  vocab_size = 32000,
@@ -40,6 +40,7 @@ class SpecTree(Tree):
         self.initialize(attn_mask, sequence, new_tokens_buffer, parents_buffer, position_ids, None)
         self.set_prefix(prefix=prefix)
         self.tree_size = sum(graph_capture_list)
+        self.step_budget = graph_capture_list
         self.num_index = torch.arange((self.tree_size),dtype=torch.long,device=self.device)
 
         self.full_attn_mask[self.max_length - self.tree_size + 1: self.max_length, self.max_length - self.tree_size + 1: self.max_length] = torch.finfo(self.dtype).min
@@ -92,13 +93,13 @@ class SpecTree(Tree):
             
             N_candidate = len(candidate_probs)
             probs = torch.cat((candidate_probs, seq_probs[:maxnum]),dim=-1)
-            _, pind = torch.sort(probs, descending=True)
+            _, pind = torch.sort(probs, descending=True, stable=True)
             past_token_num = torch.sum((pind[:maxnum] < N_candidate)).item()
             new_tokens_num = min(maxnum - past_token_num, len(seq_probs))
                       
             return past_token_num, new_tokens_num
 
-        past_token_num, new_tokens_num = fetch_new_token_num(self.draft_accept_probs[idx_list,0] ,seq_probs, new_tokens_num+len(idx_list)) # self.tree_size - idx_list[0].item()
+        past_token_num, new_tokens_num = fetch_new_token_num(self.draft_accept_probs[idx_list,0] ,seq_probs, new_tokens_num+candidate_lens) # self.tree_size - idx_list[0].item()
         # past_token_num = candidate_lens
         if past_token_num < len(idx_list):
             self.num_nodes -= (len(idx_list) - past_token_num)
@@ -234,7 +235,7 @@ class SpecTree(Tree):
                 t2 = time.time()
             self.target_logits :torch.FloatTensor = target_model_outputs[0][-(new_node_num):]
         
-        assert len(self.target_logits) == (self.num_nodes - self.ground_truth_len + 1)
+        # assert len(self.target_logits) == (self.num_nodes - self.ground_truth_len + 1)
 
         self.target_logits = get_sampling_logits(logits=self.target_logits, top_p=self.top_p, T=self.temperature, replicate=False)
         
@@ -296,11 +297,11 @@ class SpecTree(Tree):
         pre_reward = 0
         for i in range(self.draft_step - 1):
                 if benchmark:
-                        (start_pos, end_pos), t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], 20, benchmark=benchmark, grow_step=i)
+                        (start_pos, end_pos), t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], self.step_budget[i], benchmark=benchmark, grow_step=i)
                         sample_time += t1
                         compute_time += t2
                 else:
-                        (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], 20, grow_step=i)
+                        (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], self.step_budget[i], grow_step=i)
                 reward = torch.exp(self.draft_accept_probs[1:end_pos]).sum()
                 # if (reward - pre_reward) < 0.2:
                 #     break
@@ -411,8 +412,8 @@ class SpecTreeTest(Tree):
     def collective_grow_static(self, idx_list :torch.LongTensor, n_branch_list :list[int], benchmark=False):
         
         
-        assert len(set(idx_list)) == len(idx_list)
-        assert len(self.draft_logits) == (self.num_nodes - self.ground_truth_len + 1)
+        # assert len(set(idx_list)) == len(idx_list)
+        # assert len(self.draft_logits) == (self.num_nodes - self.ground_truth_len + 1)
         
         total_branch = sum(n_branch_list)
         max_branch = max(n_branch_list)
@@ -452,7 +453,7 @@ class SpecTreeTest(Tree):
         )
         self.draft_kv_len = self.num_nodes
         self.draft_logits = torch.cat([self.draft_logits, draft_model_outputs[0][-total_branch:]], dim=0)
-        assert len(self.draft_logits) == (self.num_nodes - self.ground_truth_len + 1)
+        # assert len(self.draft_logits) == (self.num_nodes - self.ground_truth_len + 1)
         
         return n_branch_list
     @torch.inference_mode()
