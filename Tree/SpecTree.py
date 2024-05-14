@@ -93,6 +93,8 @@ class SpecTree(Tree):
             
             N_candidate = len(candidate_probs)
             probs = torch.cat((candidate_probs, seq_probs[:maxnum]),dim=-1)
+            # if torch.sum(torch.exp(candidate_probs)) < 0.5:
+            #     probs[:N_candidate].add_(0.5)
             _, pind = torch.sort(probs, descending=True, stable=True)
             past_token_num = torch.sum((pind[:maxnum] < N_candidate)).item()
             new_tokens_num = min(maxnum - past_token_num, len(seq_probs))
@@ -308,8 +310,8 @@ class SpecTree(Tree):
                 # else:
                 #     pre_reward = reward
                 # print(torch.exp(self.draft_accept_probs[1:end_pos]).sum())
-                if start_pos >= end_pos-1:
-                    break
+                # if start_pos >= end_pos-1:
+                #     break
         self.Successors = [[] for _ in range(self.tree_size)]
         for i in range(1, self.tree_size):
             self.Successors[self.Ancestors[i]].append(i)

@@ -254,7 +254,7 @@ else:
     grow_map = torch.load(path)
 
     draft_step = 6
-    graph_capture_list = [80, 10, 10, 10, 10, 1]
+    graph_capture_list = [60, 20, 20, 10, 10, 1]
     draft_model.initialize_cuda_graph(list(range(128)))
     sampling_callables = {}
     for i in range(draft_step):
