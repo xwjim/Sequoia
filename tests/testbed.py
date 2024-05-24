@@ -26,10 +26,11 @@ parser.add_argument('--start', type=int, default=0, help='start')
 parser.add_argument('--end', type=int, default=200, help='end')
 parser.add_argument('--T', type=float, default=0.6, help='temperature')
 parser.add_argument('--P', type=float, default=0.9, help='top_p')
-parser.add_argument('--M', type=int, default=256, help='max length')
+parser.add_argument('--M', type=int, default=512, help='max length')
 parser.add_argument('--seed', type=int, default=17, help='random seed')
 parser.add_argument('--Mode', type=str, default="greedy", help='tree mode')
 parser.add_argument('--offloading', action='store_true')
+parser.add_argument('--debug', action='store_true')
 args = parser.parse_args()
 print(args)
 def setup_seed(seed):
@@ -43,7 +44,7 @@ setup_seed(args.seed)
 
 
 def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInferenceEngine, dataloader: DataLoader, T=0.6, top_p=0.9,
-            max_length=512, residual_graph=None, graph_capture_list=None, sampling_callables = None,):
+            max_length=512, residual_graph=None, graph_capture_list=None, sampling_callables = None, debug = False):
     num_eval_steps = len(dataloader)
     num_decoding_steps = 0
     num_large_model_steps = 0
@@ -54,6 +55,12 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
     new_tokens_buffer =  torch.zeros(max_length).long().to('cuda:0')
     parents_buffer =  torch.zeros(max_length).long().to('cuda:0')
     position_ids = torch.zeros(max_length).long().to('cuda:0')
+
+    if debug:
+        accept_tokens = []
+        reward_record = []
+        entropy_record = []
+        start_pos_record = []
 
     with torch.no_grad():
         for step, batch in tqdm(enumerate(dataloader), total=num_eval_steps):
@@ -73,14 +80,20 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
                                     position_ids = position_ids,
                                     residual_graph = residual_graph,
                                     sampling_callables=sampling_callables,
-                                    graph_capture_list = graph_capture_list)
+                                    graph_capture_list = graph_capture_list,
+                                    debug = debug)
             torch.cuda.synchronize()
             t1 = time.time()
             while input_ids.shape[1] < 256 and terminate == False:
-                spectree.construct_grow_map()
+                reward, entropy, start_pos = spectree.construct_grow_map()
                 valid_tokens, draft_kv_len, target_kv_len, terminate = spectree.verify()
                 
                 num_decoding_steps += (valid_tokens.shape[0] - input_ids.shape[1])
+                if debug:
+                    accept_tokens.append(valid_tokens.shape[0] - input_ids.shape[1])
+                    reward_record.append(reward)
+                    entropy_record.append(entropy)
+                    start_pos_record.append(start_pos)
                 num_large_model_steps += 1
                 input_ids = valid_tokens.unsqueeze(0)
                 if (input_ids[0][-1] == 2) or (input_ids[0][-1] == 0): terminate = True
@@ -91,6 +104,13 @@ def simulation_fast(target_model : GraphInferenceEngineTG, draft_model: GraphInf
             draft_model.clear_kv()
             target_model.clear_kv()
     print("total time :{:.5f}s, latency :{:.5f}s, decoding step: {}, large model step: {}, {}".format(total_time, total_time / num_decoding_steps, num_decoding_steps, num_large_model_steps, num_decoding_steps / num_large_model_steps))
+    if debug:
+        np.save("accept_length.npy",np.array(accept_tokens))
+        np.save("reward_record.npy",np.array(reward_record))
+        np.save("start_pos_record.npy",np.array(start_pos_record))
+        import pickle
+        with open('entropy.pkl', 'wb') as f:
+            pickle.dump(entropy_record, f)
     return num_decoding_steps / num_large_model_steps
 
 
@@ -254,12 +274,13 @@ else:
     grow_map = torch.load(path)
 
     draft_step = 6
-    graph_capture_list = [60, 20, 20, 10, 10, 1]
-    draft_model.initialize_cuda_graph(list(range(128)))
+    graph_capture_list = [20, 20, 20, 20, 20, 20]
+    graph_capture_list.append(1)
+    draft_model.initialize_cuda_graph(list(range(150)))
     sampling_callables = {}
     for i in range(draft_step):
         idx_len = 1 if i == 0 else 128
-        num_samples = 60 if i == 0 else 10
+        num_samples = 20 if i == 0 else 10
         sampling_callables[i] = cuda_graph_for_sampling_without_replacement(
             max_length=args.M, idx_len=idx_len, num_samples=num_samples,
             temperature=args.T)
@@ -275,4 +296,4 @@ elif args.Mode == 'baseline':
     simulation_baseline(target_model=target_model, dataloader=dataloader, T=args.T, top_p=args.P, max_length=args.M)
 elif args.Mode == 'greedy':
     simulation_fast(target_model=target_model, draft_model=draft_model, dataloader=dataloader, T=args.T, top_p=args.P,
-                                     max_length=args.M, residual_graph = residual_graph, graph_capture_list = graph_capture_list, sampling_callables=sampling_callables)
+                                     max_length=args.M, residual_graph = residual_graph, graph_capture_list = graph_capture_list, sampling_callables=sampling_callables, debug=args.debug)

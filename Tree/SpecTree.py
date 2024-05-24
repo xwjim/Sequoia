@@ -25,8 +25,10 @@ class SpecTree(Tree):
                  position_ids = None,
                  residual_graph = None,
                  sampling_callables = None,
-                 graph_capture_list = None) -> None:
+                 graph_capture_list = None,
+                 debug = False, ) -> None:
         super().__init__(device=device, max_length=max_length)
+        self.debug = debug
         assert self.max_length == draft_model_engine.engine.max_length
         self.max_target_seq = max_target_seq
         self.draft_model_engine = draft_model_engine
@@ -81,20 +83,22 @@ class SpecTree(Tree):
         self.zeros = torch.zeros((512), dtype=self.dtype, device=self.attn_mask.device)
 
     @torch.inference_mode()
-    def tree_search(self, accept_probs, new_tokens_set, idx_list, new_tokens_num):
+    def tree_search(self, sampling_probs, new_tokens_set, idx_list, new_tokens_num, dis_entropy):
+        new_tokens_accpet_probs = torch.gather(sampling_probs, -1, new_tokens_set.view(len(idx_list) ,-1))
+        new_tokens_accpet_probs.masked_fill_(new_tokens_accpet_probs < torch.finfo(new_tokens_accpet_probs.dtype).tiny, torch.finfo(new_tokens_accpet_probs.dtype).tiny)
+        accept_logits = new_tokens_accpet_probs.log()
+
         candidate_lens = len(idx_list)
         samples_nums = len(new_tokens_set)//candidate_lens
-        new_tokens_accpet_probs = torch.gather(accept_probs, -1, new_tokens_set.view(len(idx_list) ,-1))
-        new_tokens_accpet_probs.add_(self.draft_accept_probs[idx_list])
-        new_tokens_accpet_probs = new_tokens_accpet_probs.view(-1)
-        seq_probs, index = torch.sort(new_tokens_accpet_probs, descending=True)
+        
+        accept_logits.add_(self.draft_accept_probs[idx_list])
+        accept_logits = accept_logits.view(-1)
+        seq_probs, index = torch.sort(accept_logits, descending=True)
 
         def fetch_new_token_num(candidate_probs, seq_probs, maxnum):
             
             N_candidate = len(candidate_probs)
             probs = torch.cat((candidate_probs, seq_probs[:maxnum]),dim=-1)
-            # if torch.sum(torch.exp(candidate_probs)) < 0.5:
-            #     probs[:N_candidate].add_(0.5)
             _, pind = torch.sort(probs, descending=True, stable=True)
             past_token_num = torch.sum((pind[:maxnum] < N_candidate)).item()
             new_tokens_num = min(maxnum - past_token_num, len(seq_probs))
@@ -145,9 +149,11 @@ class SpecTree(Tree):
                 t1 = time.time()
 
         new_tokens_set, sampling_probs = self.sampling_callables[grow_step](self.draft_logits[idx_list], self.rand[idx_list])
-        sampling_probs.masked_fill_(sampling_probs < torch.finfo(sampling_probs.dtype).tiny, torch.finfo(sampling_probs.dtype).tiny)
-        accept_probs = sampling_probs.log() #self.accept_pro_cal(sampling_probs) #sampling_probs.log() #
-        idx_list, step_nums = self.tree_search(accept_probs, new_tokens_set, idx_list, step_nums)
+        def entropy(p):
+            p.masked_fill_(p < torch.finfo(p.dtype).tiny, torch.finfo(p.dtype).tiny)
+            return -torch.sum(p * torch.log(p) , dim=-1)
+        dis_entropy = entropy(torch.softmax(self.draft_logits[idx_list], dim=-1))
+        idx_list, step_nums = self.tree_search(sampling_probs, new_tokens_set, idx_list, step_nums, dis_entropy)
         if step_nums == 0:
              return (idx_list[-1]+1,idx_list[-1]+1)
         
@@ -176,8 +182,8 @@ class SpecTree(Tree):
                     t3 = time.time()
                     x2 += (t3 - t2)
         if benchmark:
-            return (idx_list[-1]+1,idx_list[-1]+1+step_nums), x1, x2
-        return (idx_list[-1]+1,idx_list[-1]+1+step_nums)
+            return (idx_list[-1]+1,idx_list[-1]+1+step_nums), x1, x2, dis_entropy #dis_entropy.tolist()
+        return (idx_list[-1]+1,idx_list[-1]+1+step_nums), dis_entropy #dis_entropy.tolist()
     
     @torch.inference_mode()
     def accept_step(self, parent_id :int):
@@ -297,14 +303,23 @@ class SpecTree(Tree):
         self.Ancestors = [-1 for _ in range(self.tree_size)]
         self.draft_accept_probs.fill_(0)
         pre_reward = 0
+        reward_record = []
+        entropy_record = []
+        start_pos_record = []
         for i in range(self.draft_step - 1):
+                t1 = time.time()
                 if benchmark:
-                        (start_pos, end_pos), t1, t2,  = self.collective_grow_static(self.num_index[start_pos:end_pos], self.step_budget[i], benchmark=benchmark, grow_step=i)
+                        (start_pos, end_pos), t1, t2, entropy  = self.collective_grow_static(self.num_index[start_pos:end_pos], self.step_budget[i], benchmark=benchmark, grow_step=i)
                         sample_time += t1
                         compute_time += t2
                 else:
-                        (start_pos, end_pos) = self.collective_grow_static(self.num_index[start_pos:end_pos], self.step_budget[i], grow_step=i)
+                        (start_pos, end_pos), entropy = self.collective_grow_static(self.num_index[start_pos:end_pos], self.step_budget[i], grow_step=i)
                 reward = torch.exp(self.draft_accept_probs[1:end_pos]).sum()
+                if self.debug:
+                    reward_record.append(reward.item())
+                    entropy_record.append(entropy)
+                    start_pos_record.append(int(start_pos))
+                    # print("time{}. consume{}".format(i,time.time()-t1))
                 # if (reward - pre_reward) < 0.2:
                 #     break
                 # else:
@@ -317,9 +332,9 @@ class SpecTree(Tree):
             self.Successors[self.Ancestors[i]].append(i)
              
         if benchmark:
-            return sample_time, compute_time
+            return sample_time, compute_time, reward_record, entropy_record, start_pos_record
         else:
-            return None
+            return reward_record, entropy_record, start_pos_record
     
     def prepare_for_next_iter(self, accept_list: list[int], valid_tokens :torch.LongTensor):
         if len(accept_list) + 1 > self.max_target_seq:
